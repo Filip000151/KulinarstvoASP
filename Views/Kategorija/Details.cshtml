@@ -1,0 +1,23 @@
+﻿@model KulinarstvoASP.Models.Kategorija
+@{
+	ViewData["Title"] = "Detaljno o kategoriji";
+}
+
+<h2 class="text-center mb-4">@Model.Naziv</h2>
+
+<div class="d-flex justify-content-around mb-4">
+	<a class="btn btn-info" asp-action="Edit" asp-route-id="@Model.Id">Izmeni kategoriju</a>
+	<form asp-action="Delete" method="post">
+		<input type="hidden" value="@Model.Id" name="id"/>
+		<button class="btn btn-danger">Ukloni kategoriju</button>
+	</form>
+</div>
+
+<div class="row justify-content-center">
+	<div class="container border border-primary col-8 p-4 bg-light">
+		<p class="fw-bold h4 text-center">Opis</p>
+		<p class="text-center">@Model.Opis</p>
+		<hr class="border border-primary" />
+	</div>
+</div>
+

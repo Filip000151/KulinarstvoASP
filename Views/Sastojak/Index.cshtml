@@ -1,0 +1,19 @@
+﻿@model IEnumerable<KulinarstvoASP.Models.Sastojak>
+@{
+	ViewData["Title"] = "Lista sastojaka";
+}
+
+<h2 class="text-center mb-4">Sastojci</h2>
+
+<div class="d-flex justify-content-center mb-4">
+	<a class="btn btn-primary" asp-action="Create">Kreiraj novi sastojak</a>
+</div>
+
+<div class="row justify-content-center">
+	<div class="list-group col-6">
+		@foreach (var s in Model)
+		{
+			<a asp-action="Details" asp-route-id="@s.Id" class="list-group-item list-group-item-action list-group-item-primary text-center">@s.Naziv</a>
+		}
+	</div>
+</div>
