@@ -97,7 +97,7 @@ namespace KulinarstvoASP.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
-            var c = await _context.Kategorije.FindAsync(id);
+            var c = await _context.Kategorije.Include(c => c.Recepti).FirstOrDefaultAsync(r => r.Id == id);
 
             if(c == null) return NotFound();
 
@@ -105,7 +105,8 @@ namespace KulinarstvoASP.Controllers
             {
                 Id = c.Id,
                 Naziv = c.Naziv,
-                Opis = c.Opis
+                Opis = c.Opis,
+                Recepti = c.Recepti
             };
 
             return View(k);

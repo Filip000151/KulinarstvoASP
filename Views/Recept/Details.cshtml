@@ -1,0 +1,93 @@
+﻿@model KulinarstvoASP.Models.Recept
+@{
+	ViewData["Title"] = "Detaljno o receptu";
+}
+
+<h2 class="text-center mb-4">@Model.Naziv</h2>
+
+<div class="d-flex justify-content-around mb-4">
+	<a class="btn btn-info" asp-action="Edit" asp-route-id="@Model.Id">Izmeni recept</a>
+	<form asp-action="Delete" method="post">
+		<input type="hidden" value="@Model.Id" name="id" />
+		<button class="btn btn-danger">Ukloni recept</button>
+	</form>
+</div>
+
+<div class="row justify-content-center">
+	<div class="container border border-primary bg-light col-8 p-4">
+		<div class="row justify-content-between">
+			<div class="col-6">
+				<p class="h4 fw-bold">Opis:</p>
+				<p>@Model.Opis</p>
+				<br />
+				<p class="h4 fw-bold">Sastojci:</p>
+				<p>
+					@foreach(var s in Model.SastojciZaRecept)
+					{
+						<span>@s.Sastojak.Naziv - @s.Kolicina g,</span>
+					}
+				</p>
+				<p class="h4 fw-bold">Instrukcije:</p>
+				<p>@Model.Instrukcije</p>
+				<br />
+				<p><span class="h4 fw-bold">Trajanje spremanja:</span> @Model.TrajanjeSpremanja minuta</p>
+				<p><span class="h4 fw-bold">Trajanje kuvanja:</span> @Model.TrajanjeKuvanja minuta</p>
+				<br />
+			</div>
+			<div class="col-6">
+					<img style="width: 100%;" src="@Model.Slika" alt="Slika"/>
+			</div>
+			<br />
+			<div class="col-6 mt-3">
+				<span class="h4 fw-bold">Kategorija:</span> @Model.Kategorija.Naziv
+			</div>
+			<div class="col-6 mt-3">
+				<span class="h4 fw-bold">Korisnik:</span> @Model.User.Naziv
+			</div>
+		</div>
+		<br />
+		<hr class="text-primary"/>
+		<br />
+		<h4>Komentari</h4>
+
+		@if (Model.Komentari != null && Model.Komentari.Any())
+		{
+			<ul class="list-group">
+				@foreach (var komentar in Model.Komentari.OrderByDescending(k => k.Datum))
+				{
+					<li class="list-group-item">
+						<strong>@komentar.User.UserName</strong> (@komentar.Datum.ToString("g")):<br />
+						@komentar.Sadrzaj
+
+						@if (User.Identity.Name == komentar.User.UserName || User.IsInRole("Admin"))
+						{
+							<form asp-action="Delete" asp-controller="Komentar" method="post" style="display:inline">
+								<input type="hidden" name="id" value="@komentar.Id" />
+								<button type="submit" class="btn btn-sm btn-danger float-end">Obriši</button>
+							</form>
+						}
+					</li>
+				}
+			</ul>
+		}
+		else
+		{
+			<p>Još nema komentara.</p>
+		}
+
+		@if (User.Identity.IsAuthenticated)
+		{
+			<form asp-action="Create" asp-controller="Komentar" method="post" class="mt-3">
+				<input type="hidden" name="receptId" value="@Model.Id" />
+				<div class="mb-2">
+					<textarea name="sadrzaj" class="form-control" placeholder="Napišite komentar..."></textarea>
+				</div>
+				<button type="submit" class="btn btn-primary">Dodaj komentar</button>
+			</form>
+		}
+		else
+		{
+			<p><a asp-controller="Account" asp-action="Login">Prijavite se</a> da biste ostavili komentar.</p>
+		}
+	</div>
+</div>

@@ -1,0 +1,23 @@
+﻿@model IEnumerable<KulinarstvoASP.Models.Recept>
+@{
+	ViewData["Title"] = "Svi recepti";
+}
+<h2 class="text-center mb-3">Svi recepti</h2>
+
+<div class="d-flex justify-content-center mb-4">
+	<a class="btn btn-primary" asp-action="Create">Dodaj novi recept</a>
+</div>
+
+<div class="row justify-content-center">
+	<div class="col-8 container border border-primary radius-3 d-flex justify-content-around flex-wrap bg-light p-3">
+		@foreach (var r in Model)
+		{
+			<div class="card m-3" style="width:200px">
+				<img class="card-img-top" src="@r.Slika" alt="Slika">
+				<div class="card-body text-center">
+					<a asp-action="Details" asp-route-id="@r.Id" class="card-title h4 card-link">@r.Naziv</a>
+				</div>
+			</div>
+		}
+	</div>
+</div>

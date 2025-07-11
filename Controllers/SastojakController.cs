@@ -92,14 +92,15 @@ namespace KulinarstvoASP.Controllers
 
         public async Task<IActionResult> Details(int id)
         {
-            var s = await _context.Sastojci.FindAsync(id);
+            var s = await _context.Sastojci.Include(s => s.Recepti).ThenInclude(rs => rs.Recept).FirstOrDefaultAsync(s => s.Id == id);
 
             if (s == null) return NotFound();
 
             var sastojak = new Sastojak()
             {
                 Id = s.Id,
-                Naziv = s.Naziv
+                Naziv = s.Naziv,
+                Recepti = s.Recepti
             };
 
             return View(sastojak);

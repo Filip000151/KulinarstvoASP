@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using KulinarstvoASP.Constants;
 
 namespace KulinarstvoASP.Areas.Identity.Pages.Account
 {
@@ -147,6 +148,7 @@ namespace KulinarstvoASP.Areas.Identity.Pages.Account
                         return LocalRedirect(returnUrl);
                     }
                 }
+                await _userManager.AddToRoleAsync(user, Roles.User.ToString());
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);

@@ -16,6 +16,19 @@
 <div class="row justify-content-center">
 	<div class="container border border-primary col-8 p-4 bg-light">
 		<p class="fw-bold h4 text-center">Recepti koji koriste sastojak</p>
+		<hr class="text-primary"/>
+
+		<div class="d-flex flex-wrap justify-content-around">
+			@foreach (var r in Model.Recepti)
+			{
+				<div class="card m-3" style="width:200px">
+					<img class="card-img-top" src="@r.Recept.Slika" alt="Slika">
+					<div class="card-body text-center">
+						<a asp-action="Details" asp-route-id="@r.Recept.Id" class="card-title h4 card-link">@r.Recept.Naziv</a>
+					</div>
+				</div>
+			}
+		</div>
 	</div>
 </div>
 

@@ -18,6 +18,18 @@
 		<p class="fw-bold h4 text-center">Opis</p>
 		<p class="text-center">@Model.Opis</p>
 		<hr class="border border-primary" />
+		<p class="fw-bold h4 text-center">Recepti</p>
+		<div class="d-flex flex-wrap justify-content-around">
+			@foreach (var r in Model.Recepti)
+			{
+				<div class="card m-3" style="width:200px">
+					<img class="card-img-top" src="@r.Slika" alt="Slika">
+					<div class="card-body text-center">
+						<a asp-controller="Recept" asp-action="Details" asp-route-id="@r.Id" class="h4 card-title">@r.Naziv</a>
+					</div>
+				</div>
+			}
+		</div>
 	</div>
 </div>
 

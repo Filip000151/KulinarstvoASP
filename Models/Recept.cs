@@ -5,7 +5,7 @@
         public int Id { get; set; }
 
         public string Naziv {  get; set; } = string.Empty;
-        public string? Opis { get; set; } = string.Empty;
+        public string Opis { get; set; } = string.Empty;
         public string Instrukcije { get; set; } = string.Empty;
 
         public int? TrajanjeSpremanja { get; set; }
