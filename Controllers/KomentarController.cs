@@ -50,7 +50,7 @@ namespace KulinarstvoASP.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var komentar = await _context.Komentari.FindAsync(id);
-            if (komentar != null) return NotFound();
+            if (komentar == null) return NotFound();
 
             _context.Komentari.Remove(komentar);
             await _context.SaveChangesAsync();

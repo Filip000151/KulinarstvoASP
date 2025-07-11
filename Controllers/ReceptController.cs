@@ -46,39 +46,51 @@ namespace KulinarstvoASP.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ReceptCreateViewModel model)
         {
-            var userId = _userManager.GetUserId(User);
-
-            var r = new Recept
+            if (ModelState.IsValid)
             {
-                Naziv = model.Naziv,
-                Opis = model.Opis,
-                Instrukcije = model.Instrukcije,
-                TrajanjeSpremanja = model.TrajanjeSpremanja,
-                TrajanjeKuvanja = model.TrajanjeKuvanja,
-                Slika = model.Slika,
-                UserId = userId,
-                KategorijaId = model.KategorijaId
-            };
+                var userId = _userManager.GetUserId(User);
 
-            _context.Recepti.Add(r);
-            await _context.SaveChangesAsync();
-
-            foreach(var s in model.Sastojci)
-            {
-                if (s.SastojakId > 0 && !string.IsNullOrWhiteSpace(s.Kolicina))
+                var r = new Recept
                 {
-                    _context.ReceptSastojci.Add(new ReceptSastojak
+                    Naziv = model.Naziv,
+                    Opis = model.Opis,
+                    Instrukcije = model.Instrukcije,
+                    TrajanjeSpremanja = model.TrajanjeSpremanja,
+                    TrajanjeKuvanja = model.TrajanjeKuvanja,
+                    Slika = model.Slika,
+                    UserId = userId,
+                    KategorijaId = model.KategorijaId
+                };
+
+                _context.Recepti.Add(r);
+                await _context.SaveChangesAsync();
+
+                foreach (var s in model.Sastojci)
+                {
+                    if (s.SastojakId > 0 && !string.IsNullOrWhiteSpace(s.Kolicina))
                     {
-                        ReceptId = r.Id,
-                        SastojakId = s.SastojakId,
-                        Kolicina = s.Kolicina
-                    });
+                        _context.ReceptSastojci.Add(new ReceptSastojak
+                        {
+                            ReceptId = r.Id,
+                            SastojakId = s.SastojakId,
+                            Kolicina = s.Kolicina
+                        });
+                    }
                 }
+
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index");
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            model.SviSastojci = _context.Sastojci
+                .Select(s => new SelectListItem
+                {
+                    Value = s.Id.ToString(),
+                    Text = s.Naziv
+                }).ToList();
 
+            ViewBag.Kategorije = new SelectList(_context.Kategorije, "Id", "Naziv", model.KategorijaId);
+            return View(model);
         }
 
         public async Task<IActionResult> Index()
@@ -90,10 +102,17 @@ namespace KulinarstvoASP.Controllers
         [Authorize]
         public async Task<IActionResult> Edit(int id)
         {
-            var recept = await _context.Recepti.FindAsync(id);
+            var recept = await _context.Recepti
+                .Include(r => r.SastojciZaRecept)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
             if (recept == null) return NotFound();
 
-            var r = new Recept
+            var userId = _userManager.GetUserId(User);
+            if (recept.UserId != userId && !User.IsInRole("Admin"))
+                return Forbid();
+
+            var r = new ReceptCreateViewModel
             {
                 Naziv = recept.Naziv,
                 Opis = recept.Opis,
@@ -101,8 +120,20 @@ namespace KulinarstvoASP.Controllers
                 TrajanjeSpremanja = recept.TrajanjeSpremanja,
                 TrajanjeKuvanja = recept.TrajanjeKuvanja,
                 Slika = recept.Slika,
-                UserId = recept.UserId,
-                KategorijaId = recept.KategorijaId
+                KategorijaId = recept.KategorijaId,
+
+                Sastojci = recept.SastojciZaRecept.Select(rs => new ReceptSastojakInput
+                {
+                    SastojakId = rs.SastojakId,
+                    Kolicina = rs.Kolicina
+                }).ToList(),
+
+                SviSastojci = _context.Sastojci
+                    .Select(s => new SelectListItem
+                    {
+                        Value = s.Id.ToString(),
+                        Text = s.Naziv
+                    }).ToList()
             };
 
             ViewBag.Kategorije = new SelectList(_context.Kategorije, "Id", "Naziv", r.KategorijaId);
@@ -112,13 +143,30 @@ namespace KulinarstvoASP.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Recept model)
+        public async Task<IActionResult> Edit(int id, ReceptCreateViewModel model)
         {
-            if (id != model.Id) return NotFound();
+            if (!ModelState.IsValid)
+            {
+                model.SviSastojci = _context.Sastojci
+                    .Select(s => new SelectListItem
+                    {
+                        Value = s.Id.ToString(),
+                        Text = s.Naziv
+                    }).ToList();
 
-            var recept = await _context.Recepti.FindAsync(id);
+                ViewBag.Kategorije = new SelectList(_context.Kategorije, "Id", "Naziv", model.KategorijaId);
+                return View(model);
+            }
+
+            var recept = await _context.Recepti
+                .Include(r => r.SastojciZaRecept)
+                .FirstOrDefaultAsync(r => r.Id == id);
 
             if(recept == null) return NotFound();
+
+            var userId = _userManager.GetUserId(User);
+            if (recept.UserId != userId && !User.IsInRole("Admin"))
+                return Forbid();
 
             recept.Naziv = model.Naziv;
             recept.Opis = model.Opis;
@@ -128,8 +176,23 @@ namespace KulinarstvoASP.Controllers
             recept.Slika = model.Slika;
             recept.KategorijaId = model.KategorijaId;
 
+            _context.ReceptSastojci.RemoveRange(recept.SastojciZaRecept);
+
+            foreach (var s in model.Sastojci)
+            {
+                if (s.SastojakId.HasValue && !string.IsNullOrWhiteSpace(s.Kolicina))
+                {
+                    _context.ReceptSastojci.Add(new ReceptSastojak
+                    {
+                        ReceptId = recept.Id,
+                        SastojakId = s.SastojakId.Value,
+                        Kolicina = s.Kolicina
+                    });
+                }
+            }
+
             await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            return RedirectToAction("Details", new { id = recept.Id });
         }
 
         [Authorize]
@@ -138,6 +201,10 @@ namespace KulinarstvoASP.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var r = await _context.Recepti.FindAsync(id);
+
+            var userId = _userManager.GetUserId(User);
+            if (r.UserId != userId && !User.IsInRole("Admin"))
+                return Forbid();
 
             _context.Recepti.Remove(r);
 

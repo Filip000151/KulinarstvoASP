@@ -1,4 +1,4 @@
-﻿@model KulinarstvoASP.Models.Recept
+﻿@model KulinarstvoASP.Models.ReceptCreateViewModel
 @{
 	ViewData["Title"] = "Izmena recepta";
 }
@@ -14,43 +14,101 @@
 					<div class="form-group mt-2">
 						<label asp-for="Naziv" class="form-label">Naziv recepta:</label>
 						<input type="text" asp-for="Naziv" class="form-control" placeholder="Unesite naziv recepta" />
+						<span asp-validation-for="Naziv" class="text-danger"></span>
 					</div>
 					<div class="form-group mt-2">
 						<label asp-for="TrajanjeSpremanja" class="form-label">Trajanje spremanja:</label>
 						<input type="number" asp-for="TrajanjeSpremanja" class="form-control" placeholder="Unesite trajanje spremanja u minutima" />
+						<span asp-validation-for="TrajanjeSpremanja" class="text-danger"></span>
 					</div>
 					<div class="form-group mt-2">
 						<label asp-for="TrajanjeKuvanja" class="form-label">Trajanje kuvanja:</label>
 						<input type="number" asp-for="TrajanjeKuvanja" class="form-control" placeholder="Unesite trajanje kuvanja u minutima" />
+						<span asp-validation-for="TrajanjeKuvanja" class="text-danger"></span>
 					</div>
 					<div class="form-group mt-2">
 						<label asp-for="Slika" class="form-label">URL slike:</label>
 						<input type="text" asp-for="Slika" class="form-control" placeholder="Unesite URL slike za recept" />
+						<span asp-validation-for="Slika" class="text-danger"></span>
 					</div>
 				</div>
 				<div class="col-6 p-3">
 					<div class="form-group mt-2">
 						<label asp-for="Opis" class="form-label">Opis recepta:</label>
 						<textarea asp-for="Opis" class="form-control" placeholder="Unesite opis recepta"></textarea>
+						<span asp-validation-for="Opis" class="text-danger"></span>
 					</div>
 					<div class="form-group mt-2">
 						<label asp-for="Instrukcije" class="form-label">Instrukcije za pravljenje:</label>
 						<textarea asp-for="Instrukcije" class="form-control" placeholder="Unesite instrukcije"></textarea>
+						<span asp-validation-for="Instrukcije" class="text-danger"></span>
 					</div>
 					<div class="form-group mt-2">
 						<label asp-for="KategorijaId" class="form-label">Kategorija:</label>
 						@Html.DropDownListFor(Model => Model.KategorijaId, (SelectList)ViewBag.Kategorije, "--Izaberite kategoriju--", new { @class = "form-control" })
-						@Html.ValidationMessageFor(Model => Model.KategorijaId)
+						<span asp-validation-for="KategorijaId" class="text-danger"></span>
 					</div>
+				</div>
+				<br />
+				<hr class="text-info" />
+				<br />
+				<div class="col-12">
+					<h4 class="text-center mb-3">Sastojci</h4>
+					<div id="sastojci-container">
+						@for (int i = 0; i < Model.Sastojci.Count; i++)
+						{
+							<div class="row mb-2">
+								<div class="col-6">
+									<select asp-for="Sastojci[@i].SastojakId" asp-items="Model.SviSastojci" class="form-control">
+										<option value="">--Izaberite sastojak--</option>
+									</select>
+									<span asp-validation-for="Sastojci[@i].SastojakId" class="text-danger"></span>
+								</div>
+								<div class="col-6">
+									<input type="number" asp-for="Sastojci[@i].Kolicina" class="form-control" placeholder="Kolicina u gramima" />
+									<span asp-validation-for="Sastojci[@i].Kolicina" class="text-danger"></span>
+								</div>
+							</div>
+						}
+
+					</div>
+					<div class="d-flex justify-content-center mt-2">
+						<button type="button" class="btn btn-secondary" id="dodajSastojakBtn">+</button>
+					</div>
+					<hr class="text-primary" />
 				</div>
 			</div>
 
-			<div class="row justify-content-center mt-3">
+			<div class="row justify-content-center mt-4">
 				<div class="col-auto">
 					<button type="submit" class="btn btn-info">Izmeni</button>
 				</div>
 			</div>
 		</form>
-		@Html.ValidationSummary(true, "", new { @class = "text-danger" })
 	</div>
 </div>
+
+
+@section Scripts {
+	<script>
+		document.getElementById('dodajSastojakBtn').addEventListener('click', function () {
+			const container = document.getElementById('sastojci-container');
+			const index = container.children.length;
+
+			const html = `
+			<div class="row mb-2">
+				<div class="col-6">
+					<select name="Sastojci[${index}].SastojakId" class="form-control">
+						<option value="">--Izaberite sastojak--</option>
+						${'@Html.Raw(string.Join("", Model.SviSastojci.Select(s => $"<option value=\\\"{s.Value}\\\">{s.Text}</option>")))'}
+					</select>
+				</div>
+				<div class="col-6">
+					<input type="number" name="Sastojci[${index}].Kolicina" class="form-control" placeholder="Kolicina u gramima" />
+				</div>
+			</div>`;
+
+			container.insertAdjacentHTML('beforeend', html);
+		});
+	</script>
+}

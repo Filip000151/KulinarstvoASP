@@ -1,11 +1,20 @@
-﻿@model KulinarstvoASP.Models.Recept
+﻿@using Microsoft.AspNetCore.Identity
+@model KulinarstvoASP.Models.Recept
 @{
 	ViewData["Title"] = "Detaljno o receptu";
 }
 
+
 <h2 class="text-center mb-4">@Model.Naziv</h2>
 
-@if (User.Identity.IsAuthenticated)
+@inject UserManager<ApplicationUser> UserManager
+@{
+	var currentUserId = UserManager.GetUserId(User);
+	bool isOwner = Model.UserId == currentUserId;
+	bool isAdmin = User.IsInRole("Admin");
+}
+
+@if (User.Identity.IsAuthenticated && (isOwner || isAdmin))
 {
 	<div class="d-flex justify-content-around mb-4">
 		<a class="btn btn-info" asp-action="Edit" asp-route-id="@Model.Id">Izmeni recept</a>
