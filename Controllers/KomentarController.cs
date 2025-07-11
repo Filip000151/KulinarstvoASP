@@ -1,5 +1,6 @@
 ﻿using KulinarstvoASP.Data;
 using KulinarstvoASP.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,6 +17,7 @@ namespace KulinarstvoASP.Controllers
             _userManager = userManager;
         }
 
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(int receptId, string sadrzaj)
@@ -42,6 +44,7 @@ namespace KulinarstvoASP.Controllers
             return RedirectToAction("Details", "Recept", new {id = receptId});
         }
 
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)

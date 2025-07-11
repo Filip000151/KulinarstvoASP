@@ -22,9 +22,9 @@
 			@foreach (var r in Model.Recepti)
 			{
 				<div class="card m-3" style="width:200px">
-					<img class="card-img-top" src="@r.Recept.Slika" alt="Slika">
+					<img style="width: 100%; height: 200px;" class="card-img-top" src="@r.Recept.Slika" alt="Slika">
 					<div class="card-body text-center">
-						<a asp-action="Details" asp-route-id="@r.Recept.Id" class="card-title h4 card-link">@r.Recept.Naziv</a>
+						<a asp-controller="Recept" asp-action="Details" asp-route-id="@r.Recept.Id" class="card-title h5 card-link">@r.Recept.Naziv</a>
 					</div>
 				</div>
 			}

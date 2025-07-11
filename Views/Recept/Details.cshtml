@@ -5,13 +5,16 @@
 
 <h2 class="text-center mb-4">@Model.Naziv</h2>
 
-<div class="d-flex justify-content-around mb-4">
-	<a class="btn btn-info" asp-action="Edit" asp-route-id="@Model.Id">Izmeni recept</a>
-	<form asp-action="Delete" method="post">
-		<input type="hidden" value="@Model.Id" name="id" />
-		<button class="btn btn-danger">Ukloni recept</button>
-	</form>
-</div>
+@if (User.Identity.IsAuthenticated)
+{
+	<div class="d-flex justify-content-around mb-4">
+		<a class="btn btn-info" asp-action="Edit" asp-route-id="@Model.Id">Izmeni recept</a>
+		<form asp-action="Delete" method="post">
+			<input type="hidden" value="@Model.Id" name="id" />
+			<button class="btn btn-danger">Ukloni recept</button>
+		</form>
+	</div>
+}
 
 <div class="row justify-content-center">
 	<div class="container border border-primary bg-light col-8 p-4">
@@ -56,7 +59,7 @@
 				@foreach (var komentar in Model.Komentari.OrderByDescending(k => k.Datum))
 				{
 					<li class="list-group-item">
-						<strong>@komentar.User.UserName</strong> (@komentar.Datum.ToString("g")):<br />
+						<strong>@komentar.User.Naziv</strong> (@komentar.Datum.ToString("g")):<br />
 						@komentar.Sadrzaj
 
 						@if (User.Identity.Name == komentar.User.UserName || User.IsInRole("Admin"))

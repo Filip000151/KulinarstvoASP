@@ -1,5 +1,6 @@
 ﻿using KulinarstvoASP.Data;
 using KulinarstvoASP.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -18,6 +19,7 @@ namespace KulinarstvoASP.Controllers
             _userManager = userManager;
         }
 
+        [Authorize]
         public async Task<IActionResult> Create()
         {
             var model = new ReceptCreateViewModel
@@ -39,6 +41,7 @@ namespace KulinarstvoASP.Controllers
             return View(model);
         }
 
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ReceptCreateViewModel model)
@@ -84,6 +87,7 @@ namespace KulinarstvoASP.Controllers
             return View(recepti);
         }
 
+        [Authorize]
         public async Task<IActionResult> Edit(int id)
         {
             var recept = await _context.Recepti.FindAsync(id);
@@ -105,6 +109,7 @@ namespace KulinarstvoASP.Controllers
             return View(r);
         }
 
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Recept model)
@@ -127,6 +132,7 @@ namespace KulinarstvoASP.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)

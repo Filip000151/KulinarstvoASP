@@ -5,9 +5,12 @@
 
 <h2 class="text-center mb-4">Kategorije</h2>
 
-<div class="d-flex justify-content-center mb-4">
-	<a class="btn btn-primary" asp-action="Create">Dodaj novu kategoriju</a>
-</div>
+@if (User.IsInRole("Admin"))
+{
+	<div class="d-flex justify-content-center mb-4">
+		<a class="btn btn-primary" asp-action="Create">Dodaj novu kategoriju</a>
+	</div>
+}
 
 <div class="row justify-content-center">
 	<div class="list-group col-6">

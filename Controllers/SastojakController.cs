@@ -1,5 +1,7 @@
-﻿using KulinarstvoASP.Data;
+﻿using KulinarstvoASP.Constants;
+using KulinarstvoASP.Data;
 using KulinarstvoASP.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,11 +15,14 @@ namespace KulinarstvoASP.Controllers
         {
             _context = context;
         }
+
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
         {
             return View();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Sastojak model)
@@ -37,12 +42,14 @@ namespace KulinarstvoASP.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
             var sastojci = await _context.Sastojci.ToListAsync();
             return View(sastojci);
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var s = await _context.Sastojci.FindAsync(id);
@@ -58,6 +65,7 @@ namespace KulinarstvoASP.Controllers
             return View(sastojak);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Sastojak model)
@@ -78,6 +86,7 @@ namespace KulinarstvoASP.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -90,6 +99,7 @@ namespace KulinarstvoASP.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int id)
         {
             var s = await _context.Sastojci.Include(s => s.Recepti).ThenInclude(rs => rs.Recept).FirstOrDefaultAsync(s => s.Id == id);

@@ -1,5 +1,7 @@
-﻿using KulinarstvoASP.Data;
+﻿using KulinarstvoASP.Constants;
+using KulinarstvoASP.Data;
 using KulinarstvoASP.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,11 +16,13 @@ namespace KulinarstvoASP.Controllers
             _context = context;
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
         {
             return View();
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Kategorija model)
@@ -39,12 +43,14 @@ namespace KulinarstvoASP.Controllers
             return View();
         }
 
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var kategorije = await _context.Kategorije.ToListAsync();
             return View(kategorije);
         }
 
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var c = await _context.Kategorije.FindAsync(id);
@@ -61,6 +67,7 @@ namespace KulinarstvoASP.Controllers
             return View(kategorija);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Kategorija model)
@@ -83,6 +90,7 @@ namespace KulinarstvoASP.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
@@ -95,6 +103,7 @@ namespace KulinarstvoASP.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize]
         public async Task<IActionResult> Details(int id)
         {
             var c = await _context.Kategorije.Include(c => c.Recepti).FirstOrDefaultAsync(r => r.Id == id);
