@@ -95,10 +95,16 @@ namespace KulinarstvoASP.Controllers
         {
             var s = await _context.Sastojci.FindAsync(id);
 
-            _context.Sastojci.Remove(s);
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            try
+            {
+                _context.Sastojci.Remove(s);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Sastojak ne može biti obrisan jer se koristi u nekom receptu.");
+            }
         }
 
         [Authorize(Roles = "Admin")]

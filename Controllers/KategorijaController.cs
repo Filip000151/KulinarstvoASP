@@ -103,10 +103,16 @@ namespace KulinarstvoASP.Controllers
         {
             var c = await _context.Kategorije.FindAsync(id);
 
-            _context.Kategorije.Remove(c);
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            try
+            {
+                _context.Kategorije.Remove(c);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Kategorija ne može biti obrisana jer se u njoj nalaze recepti.");
+            }
         }
 
         [Authorize]

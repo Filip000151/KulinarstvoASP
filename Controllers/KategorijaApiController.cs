@@ -55,29 +55,7 @@ namespace KulinarstvoASP.Controllers
 
             return CreatedAtAction(nameof(DohvatiJednu), new { id = nova.Id }, nova);
         }
-
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Azuriraj(int id, [FromBody] Kategorija input)
-        {
-            if (id != input.Id)
-                return BadRequest("URL id se ne podudara sa CategoryId u telu!");
-
-            if (string.IsNullOrWhiteSpace(input.Naziv))
-            {
-                ModelState.AddModelError("Naziv", "Naziv je obavezno polje!");
-                return BadRequest(ModelState);
-            }
-
-            var kategorijaIzBaze = await _context.Kategorije.FindAsync(id);
-            if (kategorijaIzBaze == null) return NotFound();
-
-            kategorijaIzBaze.Naziv = input.Naziv.Trim();
-
-            _context.Entry(kategorijaIzBaze).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
+        
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Obrisi(int id)

@@ -255,10 +255,16 @@ namespace KulinarstvoASP.Controllers
             if (r.UserId != userId && !User.IsInRole("Admin"))
                 return Forbid();
 
-            _context.Recepti.Remove(r);
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            try
+            {
+                _context.Recepti.Remove(r);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Recept ne može biti obrisan jer se u njemu nalaze komentari.");
+            }
         }
 
         public async Task<IActionResult> Details(int id)
