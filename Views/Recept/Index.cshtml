@@ -1,4 +1,4 @@
-﻿@model IEnumerable<KulinarstvoASP.Models.Recept>
+﻿@model KulinarstvoASP.Models.ViewModels.ReceptFilterViewModel
 @{
 	ViewData["Title"] = "Svi recepti";
 }
@@ -10,10 +10,38 @@
 		<a class="btn btn-primary" asp-action="Create">Dodaj novi recept</a>
 	</div>
 }
+<form method="get" asp-action="Index" class="row gy-3 gx-2 mb-5 justify-content-center">
+	<div class="col-md-4">
+		<label asp-for="SelectCategoryId" class="form-label">Kategorija</label>
+		<select asp-for="SelectCategoryId" asp-items="Model.KategorijaSelectList" class="form-select" name="categoryId">
+			<option value="">--Svi recepti--</option>
+		</select>
+	</div>
+	<div class="col-md-4">
+		<label asp-for="SearchTerm" class="form-label">Pretraga</label>
+		<input asp-for="SearchTerm" class="form-control" placeholder="Pretrazi naslove..."/>
+	</div>
+	<div class="col-md-2">
+		<label asp-for="SortOrder" class="form-label">Sortiraj po</label>
+		<select asp-for="SortOrder" class="form-select">
+			<option value="">Naziv A-Z</option>
+			<option value="naziv_desc">Naziv Z-A</option>
+			<option value="trajanje_spremanja">Najduže vreme spremanje</option>
+			<option value="trajanje_kuvanja">Najduže vreme kuvanja</option>
+		</select>
+	</div>
+
+	<div class="row justify-content-center mt-3">
+		<div class="col-auto">
+			<button type="submit" class="btn btn-info">Filtriraj</button>
+		</div>
+	</div>
+</form>
+
 
 <div class="row justify-content-center">
-	<div class="col-8 container border border-primary radius-3 d-flex justify-content-around flex-wrap bg-light p-3">
-		@foreach (var r in Model)
+	<div class="col-10 container border border-primary radius-3 d-flex justify-content-around flex-wrap bg-light p-3">
+		@foreach (var r in Model.PagedRecept.Items)
 		{
 			<div class="card m-3" style="width:200px;">
 				<img style="width: 100%; height: 200px;" class="card-img-top" src="@r.Slika" alt="Slika">
@@ -23,4 +51,20 @@
 			</div>
 		}
 	</div>
+	@if(Model.PagedRecept.TotalPages > 1)
+	{
+		<nav class="mt-5">
+			<ul class="pagination justify-content-center">
+				@for(int i = 1; i <= Model.PagedRecept.TotalPages; i++)
+				{
+					<li class="page-item @(i == Model.PagedRecept.PageNumber ? "active" : "")">
+						<a class="page-link" asp-action="Index" asp-route-categoryId="@Model.SelectCategoryId" 
+						asp-route-searchTerm="@Model.SearchTerm" asp-route-sortOrder="@Model.SortOrder" asp-route-page="@i">
+							@i
+						</a>
+					</li>
+				}
+			</ul>
+		</nav>
+	}
 </div>

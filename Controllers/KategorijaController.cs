@@ -46,7 +46,7 @@ namespace KulinarstvoASP.Controllers
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            var kategorije = await _context.Kategorije.ToListAsync();
+            var kategorije = await _context.Kategorije.Include(k => k.Recepti).ToListAsync();
             return View(kategorije);
         }
 

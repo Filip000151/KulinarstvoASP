@@ -1,5 +1,6 @@
 ﻿using KulinarstvoASP.Data;
 using KulinarstvoASP.Models;
+using KulinarstvoASP.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -93,10 +94,58 @@ namespace KulinarstvoASP.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? categoryId, string searchTerm, string sortOrder, int page=1, int pageSize=9)
         {
-            var recepti = await _context.Recepti.ToListAsync();
-            return View(recepti);
+            var receptQuery = _context.Recepti
+                .Include(r => r.Kategorija)
+                .Include(r => r.User)
+                .AsQueryable();
+
+            if (categoryId.HasValue)
+            {
+                receptQuery = receptQuery.Where(r => r.KategorijaId ==  categoryId.Value);
+            }
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                receptQuery = receptQuery.Where(r => r.Naziv.Contains(searchTerm));
+            }
+            receptQuery = sortOrder switch
+            {
+                "naziv_desc" => receptQuery.OrderByDescending(r => r.Naziv),
+                "trajanje_spremanja" => receptQuery.OrderByDescending(r => r.TrajanjeSpremanja),
+                "trajanje_kuvanja" => receptQuery.OrderByDescending(r => r.TrajanjeKuvanja),
+                _ => receptQuery.OrderBy(r => r.Naziv)
+            };
+
+            var totalItems = await receptQuery.CountAsync();
+            var recepti = await receptQuery.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+            var kategorije = await _context.Kategorije.ToListAsync();
+
+            var selectList = new SelectList(
+                kategorije,
+                "Id",
+                "Naziv",
+                categoryId);
+
+            var pagedResult = new PagedResult<Recept>
+            {
+                Items = recepti,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalItems = totalItems
+            };
+
+            var viewModel = new ReceptFilterViewModel
+            {
+                PagedRecept = pagedResult,
+                KategorijaSelectList = selectList,
+                SearchTerm = searchTerm,
+                SortOrder = sortOrder
+            };
+
+            ViewBag.CurrentUserId = _userManager.GetUserId(User);
+            return View(viewModel);
         }
 
         [Authorize]

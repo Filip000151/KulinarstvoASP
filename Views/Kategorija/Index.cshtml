@@ -12,11 +12,49 @@
 	</div>
 }
 
-<div class="row justify-content-center">
-	<div class="list-group col-6">
-		@foreach (var c in Model)
-		{
-			<a asp-action="Details" asp-route-id="@c.Id" class="list-group-item list-group-item-action list-group-item-primary text-center">@c.Naziv</a>
-		}
-	</div>
-</div>
+<table id="kategorijeTabela" class="table table-striped table-bordered table-primary">
+    <thead>
+        <tr>
+            <th>Naziv</th>
+            <th>Opis</th>
+            <th>Broj recepata</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var k in Model)
+        {
+            <tr>
+                <td>@k.Naziv</td>
+                <td>@k.Opis</td>
+                <td>@k.Recepti.Count</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@k.Id" class="btn btn-sm btn-info">Detalji</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#kategorijeTabela').DataTable({
+                "language": {
+                    "search": "Pretraga:",
+                    "lengthMenu": "Prikaži _MENU_ zapisa",
+                    "zeroRecords": "Nema pronađenih rezultata",
+                    "info": "Prikazano _START_ do _END_ od _TOTAL_ zapisa",
+                    "infoEmpty": "Nema zapisa",
+                    "paginate": {
+                        "first": "Prva",
+                        "last": "Poslednja",
+                        "next": "Sledeća",
+                        "previous": "Prethodna"
+                    }
+                }
+            });
+        });
+    </script>
+}
+

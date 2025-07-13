@@ -45,7 +45,9 @@ namespace KulinarstvoASP.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index()
         {
-            var sastojci = await _context.Sastojci.ToListAsync();
+            var sastojci = await _context.Sastojci
+                .Include(s => s.Recepti)
+                .ToListAsync();
             return View(sastojci);
         }
 
