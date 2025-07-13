@@ -16,6 +16,12 @@ namespace KulinarstvoASP.Controllers
             _context = context;
         }
 
+        [HttpGet]
+        public IActionResult Upravljaj()
+        {
+            return View();
+        }
+
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create()
         {

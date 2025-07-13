@@ -19,18 +19,32 @@ namespace KulinarstvoASP.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Recept>()
+                .HasOne(r => r.Kategorija)
+                .WithMany(k => k.Recepti)
+                .HasForeignKey(r => r.KategorijaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Komentar>()
+                .HasOne(k => k.Recept)
+                .WithMany(r => r.Komentari)
+                .HasForeignKey(k => k.ReceptId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<ReceptSastojak>()
                 .HasKey(rs => new { rs.ReceptId, rs.SastojakId });
 
             modelBuilder.Entity<ReceptSastojak>()
                 .HasOne(rs => rs.Recept)
                 .WithMany(r => r.SastojciZaRecept)
-                .HasForeignKey(rs => rs.ReceptId);
+                .HasForeignKey(rs => rs.ReceptId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ReceptSastojak>()
                 .HasOne(rs => rs.Sastojak)
                 .WithMany(s => s.Recepti)
-                .HasForeignKey(rs => rs.SastojakId);
+                .HasForeignKey(rs => rs.SastojakId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

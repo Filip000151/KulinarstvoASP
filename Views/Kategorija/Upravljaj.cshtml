@@ -1,0 +1,138 @@
+﻿@{
+    ViewData["Title"] = "Upravljanje kategorijama uz API";
+}
+
+<h2>Test API-ja (preporuka postman za PUT mada moze i za DELETE, POST i GET)</h2>
+
+
+<div id="dodavanje">
+    <h3>Dodaj novu kategoriju</h3>
+    <form id="formaDodajKategoriu">
+        <label>Naziv: </label><br />
+        <input type="text" id="inputName" placeholder="Unesite naziv kategorije" required /><br /><br />
+
+        <label>Opis: </label><br />
+        <textarea placeholder="Unesite opis" id="inputOpis"></textarea>
+
+        <button type="submit">Dodaj</button>
+    </form>
+    <div id="greskaDodaj" style="color:red; margin-top:5px;"></div>
+</div>
+
+<hr />
+
+<div id="lista">
+    <h3>Lista kategorija</h3>
+    <table id="tabela" border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>CategoryId</th>
+                <th>Name</th>
+                <th>Opis</th>
+                <th>Akcija</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<!-- REFERENCA NA jQuery mada ima je u layoutu al bolje i ovde -->
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function () {
+            function ucitajSve() {
+                $.ajax({
+                    url: '/api/Kategorija',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        $('#tabela tbody').empty();
+
+                        data.forEach(function (k) {
+                            var red = '<tr data-id="' + k.id + '">' +
+                                '<td>' + k.id + '</td>' +
+                                '<td>' + k.naziv + '</td>' +
+                                '<td>' + k.opis + '</td>' +
+                                '<td><button class="btn-brisi">Obrisi</button></td>' +
+                                '</tr>';
+                            $('#tabela tbody').append(red);
+                        });
+                    },
+                    error: function (xhr) {
+                        console.error('Greska pri GET /api/Kategorija:', xhr.responseText);
+                    }
+                });
+            }
+
+            ucitajSve();
+
+            $('#formaDodajKategoriu').submit(function (e) {
+                e.preventDefault();
+                var naziv = $('#inputName').val().trim();
+                if (!naziv) {
+                    $('#greskaDodaj').text('Naziv kategorije je obavezan.');
+                    return;
+                }
+
+                var opis = null
+                opis = $('#inputOpis').val().trim();
+
+
+                var novo = {
+                    Naziv: naziv,
+                    Opis: opis
+                };
+
+                $.ajax({
+                    url: '/api/Kategorija',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(novo),
+                    success: function (vracena) {
+                        ucitajSve();
+                        $('#inputName').val('');
+                        $('#inputOpis').val('');
+                        $('#greskaDodaj').text('');
+                    },
+                    error: function (xhr) {
+                        var msg = xhr.responseText;
+                        try {
+                            var obj = JSON.parse(xhr.responseText);
+                            if (obj.errors) {
+                                var msgs = [];
+                                for (var k in obj.errors) {
+                                    msgs.push(obj.errors[k].join(', '));
+                                }
+                                msg = msgs.join(' | ');
+                            }
+                        } catch { }
+                        $('#greskaDodaj').text('Greska: ' + msg);
+                    }
+                });
+            });
+
+            $('#tabela').on('click', '.btn-brisi', function () {
+                var red = $(this).closest('tr');
+                var id = red.data('id');
+
+                if (!confirm('Da li ste sigurni da zelite da obrisete kategoriju')){
+                    return;
+                }
+
+                $.ajax({
+                    url: '/api/Kategorija/' + id,
+                    method: 'DELETE',
+                    success: function () {
+                        ucitajSve();
+                    },
+                    error: function (xhr) {
+                        var poruka = xhr.responseText || 'Došlo je do greške.';
+                        alert('Greška pri brisanju: ' + poruka);
+                    }
+                });
+            });
+        });
+    </script>
+}
